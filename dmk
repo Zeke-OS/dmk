@@ -1,6 +1,9 @@
 #!/bin/bash
 
+dmk_host=unix:///var/run/docker.sock
 dmk_image=scratch
+dmk_buildvol="$(pwd)"
+dmk_voldriver=local
 dmk_makecmd=make
 
 if [ -f .dmkrc ]; then
@@ -10,12 +13,12 @@ fi
 DMKUID=$(id -u)
 DMKGID=$(id -g)
 
-docker run -v "$(pwd):/build" -u root -it "$dmk_image" \
+docker -H "$dmk_host" run -v "$dmk_buildvol:/build" "--volume-driver=$dmk_voldriver" -u root -it "$dmk_image" \
 /bin/bash -c " \
 addgroup --gid $DMKGID tmpgrp && \
 adduser --disabled-password --gecos '' -u $DMKUID --gid $DMKGID $USER && \
 cd /build && sudo -u $USER $dmk_makecmd $*"
 
-dlast=$(docker ps -l -q)
-docker stop $dlast &>/dev/null
-docker rm $dlast &>/dev/null
+dlast=$(docker -H "$dmk_host" ps -l -q)
+docker -H "$dmk_host" stop $dlast &>/dev/null
+docker -H "$dmk_host" rm $dlast &>/dev/null
