@@ -18,6 +18,7 @@ docker -H "$dmk_host" run -v "$dmk_buildvol:/build" "--volume-driver=$dmk_voldri
 addgroup --gid $DMKGID tmpgrp && \
 adduser --disabled-password --gecos '' -u $DMKUID --gid $DMKGID $USER && \
 chown -R $USER:tmpgrp /root && \
+chown -R $USER /dev/console && \
 cd /build && sudo -u $USER $dmk_makecmd $*"
 
 dlast=$(docker -H "$dmk_host" ps -l -q)
